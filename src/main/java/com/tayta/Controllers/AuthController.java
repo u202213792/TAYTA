@@ -60,8 +60,10 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Error: Email already in use");
         }
 
-        Role role = roleRepository.findById(registerRequest.getRoleId())
-                .orElseThrow(() -> new RuntimeException("Role not found with id: " + registerRequest.getRoleId()));
+        // El registro público siempre crea un GUARDIAN (apoderado).
+        // Los roles NURSE/ADMIN los asigna un ADMIN desde su panel.
+        Role role = roleRepository.findByRoleName("GUARDIAN")
+                .orElseThrow(() -> new RuntimeException("Role GUARDIAN not found"));
 
         User user = new User();
         user.setUsername(registerRequest.getUsername());
