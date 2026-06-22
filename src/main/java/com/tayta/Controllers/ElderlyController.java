@@ -3,6 +3,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import com.tayta.Entities.Elderly;
 import com.tayta.Services.ElderlyServices;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,12 +28,12 @@ public class ElderlyController {
     }
 
     @PostMapping
-    public Elderly save(@RequestBody Elderly elderly) {
+    public Elderly save(@Valid @RequestBody Elderly elderly) {
         return elderlyServices.save(elderly);
     }
 
     @PutMapping("/{id}")
-    public Elderly update(@PathVariable Long id, @RequestBody Elderly elderly) {
+    public Elderly update(@PathVariable Long id, @Valid @RequestBody Elderly elderly) {
         return elderlyServices.update(id, elderly);
     }
 

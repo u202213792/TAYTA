@@ -1,6 +1,9 @@
 package com.tayta.Entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 
 @Entity
@@ -11,6 +14,7 @@ public class HealthCenter {
     @Column(name = "id_healthCenter")
     private Long id;
 
+    @NotBlank(message = "El nombre del centro es obligatorio")
     @Column(name = "centerName")
     private String centerName;
 
@@ -26,6 +30,8 @@ public class HealthCenter {
     @Column(name = "address")
     private String address;
 
+    @DecimalMin(value = "0.0", message = "La calificación mínima es 0")
+    @DecimalMax(value = "5.0", message = "La calificación máxima es 5")
     @Column(name = "rating")
     private BigDecimal rating;
 

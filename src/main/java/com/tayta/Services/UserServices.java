@@ -27,6 +27,11 @@ public class UserServices {
 
     public User update(Long id, User user) {
         user.setId(id);
+        // Conservar la contraseña existente si no viene en la petición
+        // (el password ya no se expone en las respuestas, así que el frontend no la reenvía).
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
+            userRepository.findById(id).ifPresent(existing -> user.setPassword(existing.getPassword()));
+        }
         return userRepository.save(user);
     }
 

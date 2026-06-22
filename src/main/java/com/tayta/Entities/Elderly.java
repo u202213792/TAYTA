@@ -1,6 +1,10 @@
 package com.tayta.Entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import java.math.BigDecimal;
 
 @Entity
@@ -15,6 +19,8 @@ public class Elderly {
     @JoinColumn(name = "id_user")
     private User user;
 
+    @NotBlank(message = "El DNI es obligatorio")
+    @Pattern(regexp = "\\d{8}", message = "El DNI debe tener 8 dígitos")
     @Column(name = "dni")
     private String dni;
 
@@ -24,12 +30,16 @@ public class Elderly {
     @Column(name = "gender")
     private String gender;
 
+    @DecimalMin(value = "0.0", message = "La talla no puede ser negativa")
+    @DecimalMax(value = "3.0", message = "La talla no es válida")
     @Column(name = "height")
     private BigDecimal height;
 
     @Column(name = "allergies")
     private String allergies;
 
+    @DecimalMin(value = "0.0", message = "El peso no puede ser negativo")
+    @DecimalMax(value = "400.0", message = "El peso no es válido")
     @Column(name = "current_weight")
     private BigDecimal currentWeight;
 

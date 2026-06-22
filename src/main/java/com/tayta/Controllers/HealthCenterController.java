@@ -3,6 +3,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import com.tayta.Entities.HealthCenter;
 import com.tayta.Services.HealthCenterServices;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,12 +28,12 @@ public class HealthCenterController {
     }
 
     @PostMapping
-    public HealthCenter save(@RequestBody HealthCenter healthCenter) {
+    public HealthCenter save(@Valid @RequestBody HealthCenter healthCenter) {
         return healthCenterServices.save(healthCenter);
     }
 
     @PutMapping("/{id}")
-    public HealthCenter update(@PathVariable Long id, @RequestBody HealthCenter healthCenter) {
+    public HealthCenter update(@PathVariable Long id, @Valid @RequestBody HealthCenter healthCenter) {
         return healthCenterServices.update(id, healthCenter);
     }
 

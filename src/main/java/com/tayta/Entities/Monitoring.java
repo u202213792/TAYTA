@@ -1,6 +1,9 @@
 package com.tayta.Entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -13,10 +16,12 @@ public class Monitoring {
     @Column(name = "id_monitoring")
     private Long id;
 
+    @NotNull(message = "El adulto mayor es obligatorio")
     @ManyToOne
     @JoinColumn(name = "id_elderly")
     private Elderly elderly;
 
+    @NotNull(message = "El enfermero/a es obligatorio")
     @ManyToOne
     @JoinColumn(name = "id_nurse")
     private Nurse nurse;
@@ -24,12 +29,15 @@ public class Monitoring {
     @Column(name = "vital_signs_status")
     private String vitalSignsStatus;
 
+    @NotNull(message = "La fecha es obligatoria")
     @Column(name = "monitoring_date")
     private LocalDate monitoringDate;
 
     @Column(name = "monitoring_time")
     private LocalTime monitoringTime;
 
+    @DecimalMin(value = "30.0", message = "Temperatura fuera de rango")
+    @DecimalMax(value = "45.0", message = "Temperatura fuera de rango")
     @Column(name = "temperature")
     private BigDecimal temperature;
 

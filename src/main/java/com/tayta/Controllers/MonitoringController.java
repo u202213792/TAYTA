@@ -3,6 +3,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import com.tayta.Entities.Monitoring;
 import com.tayta.Services.MonitoringServices;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,12 +28,12 @@ public class MonitoringController {
     }
 
     @PostMapping
-    public Monitoring save(@RequestBody Monitoring monitoring) {
+    public Monitoring save(@Valid @RequestBody Monitoring monitoring) {
         return monitoringServices.save(monitoring);
     }
 
     @PutMapping("/{id}")
-    public Monitoring update(@PathVariable Long id, @RequestBody Monitoring monitoring) {
+    public Monitoring update(@PathVariable Long id, @Valid @RequestBody Monitoring monitoring) {
         return monitoringServices.update(id, monitoring);
     }
 
