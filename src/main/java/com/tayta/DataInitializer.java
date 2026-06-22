@@ -33,6 +33,8 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         // Vínculos apoderado↔adulto mayor (idempotente; corre aunque la BD ya esté sembrada)
         seedGuardianElderlyLinks();
+        // Datos recientes para la demo (monitoreos y eventos con fechas actuales)
+        seedRecentDemoData();
 
         if (roleRepository.count() > 0) return;
 
@@ -117,8 +119,70 @@ public class DataInitializer implements CommandLineRunner {
         calendar("2025-02-14", "11:30", "2025-02-14", "09:00", "2025-02-20", "15:00", "Influenza");
         calendar("2025-04-05", "09:00", "2025-04-05", "08:00", "2025-04-10", "14:00", null);
 
-        // Tras crear datos en BD nueva, sembrar los vínculos
+        // Tras crear datos en BD nueva, sembrar los vínculos y datos recientes
         seedGuardianElderlyLinks();
+        seedRecentDemoData();
+    }
+
+    /**
+     * Datos recientes (fechas actuales) para la presentación: monitoreos para los
+     * gráficos/actividad y un par de eventos de calendario próximos, vinculados al
+     * primer adulto mayor. Idempotente: solo siembra si no hay datos recientes.
+     */
+    private void seedRecentDemoData() {
+        java.util.List<Elderly> elderlyList = elderlyRepository.findAll();
+        java.util.List<Nurse> nurses = nurseRepository.findAll();
+        if (elderlyList.isEmpty() || nurses.isEmpty()) return;
+
+        LocalDate today = LocalDate.now();
+        Elderly e = elderlyList.get(0);
+        Nurse n = nurses.get(0);
+
+        boolean hayMonitoreosRecientes =
+                !monitoringRepository.findByMonitoringDateGreaterThanEqual(today.minusDays(40)).isEmpty();
+        if (!hayMonitoreosRecientes) {
+            recentMonitoring(e, n, "NORMAL", today.minusDays(28), "36.5", "118/78", "AL DÍA", "Control estable");
+            recentMonitoring(e, n, "NORMAL", today.minusDays(21), "36.7", "120/80", "AL DÍA", "Sin novedades");
+            recentMonitoring(e, n, "ALERTA", today.minusDays(14), "37.4", "140/90", "PENDIENTE", "Presión elevada");
+            recentMonitoring(e, n, "NORMAL", today.minusDays(7),  "36.6", "122/82", "AL DÍA", "Mejora notable");
+            recentMonitoring(e, n, "NORMAL", today.minusDays(2),  "36.4", "117/77", "AL DÍA", "Estable");
+            recentMonitoring(e, n, "NORMAL", today,               "36.5", "119/79", "AL DÍA", "Control del día");
+        }
+
+        boolean hayCalendarioReciente = calendarRepository
+                .findByElderly_IdIn(elderlyList.stream().map(Elderly::getId).toList())
+                .stream()
+                .anyMatch(c -> c.getAppointmentDate() != null && !c.getAppointmentDate().isBefore(today.minusDays(40)));
+        if (!hayCalendarioReciente) {
+            calendarFor(e, today.plusDays(2), "10:00", today.plusDays(2), "08:00", today.plusDays(5), "15:00", "Influenza");
+            calendarFor(e, today.plusDays(9), "11:30", today.plusDays(9), "09:00", null, null, null);
+        }
+    }
+
+    private void recentMonitoring(Elderly e, Nurse n, String status, LocalDate date,
+                                  String temp, String bp, String med, String obs) {
+        Monitoring m = new Monitoring();
+        m.setElderly(e);
+        m.setNurse(n);
+        m.setVitalSignsStatus(status);
+        m.setMonitoringDate(date);
+        m.setMonitoringTime(LocalTime.of(9, 0));
+        m.setTemperature(new BigDecimal(temp));
+        m.setBloodPressure(bp);
+        m.setMedicineStatus(med);
+        m.setObservations(obs);
+        monitoringRepository.save(m);
+    }
+
+    private void calendarFor(Elderly e, LocalDate ad, String at, LocalDate md, String mt,
+                             LocalDate td, String tt, String vac) {
+        Calendar c = new Calendar();
+        c.setElderly(e);
+        if (ad != null) { c.setAppointmentDate(ad); c.setAppointmentTime(LocalTime.parse(at)); }
+        if (md != null) { c.setMedicineDate(md); c.setMedicineTime(LocalTime.parse(mt)); }
+        if (td != null) { c.setTherapyDate(td); c.setTherapyTime(LocalTime.parse(tt)); }
+        c.setVaccines(vac);
+        calendarRepository.save(c);
     }
 
     /**

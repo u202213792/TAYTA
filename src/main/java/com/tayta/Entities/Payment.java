@@ -29,6 +29,9 @@ public class Payment {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "method")
+    private String method;
+
     // Getters and Setters
     public Long getId() {
         return id;
@@ -76,5 +79,13 @@ public class Payment {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
     }
 }

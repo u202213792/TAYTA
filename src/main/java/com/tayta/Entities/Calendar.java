@@ -12,6 +12,10 @@ public class Calendar {
     @Column(name = "id_calendar")
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "id_elderly")
+    private Elderly elderly;
+
     @Column(name = "appointment_date")
     private LocalDate appointmentDate;
 
@@ -40,6 +44,14 @@ public class Calendar {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Elderly getElderly() {
+        return elderly;
+    }
+
+    public void setElderly(Elderly elderly) {
+        this.elderly = elderly;
     }
 
     public LocalDate getAppointmentDate() {

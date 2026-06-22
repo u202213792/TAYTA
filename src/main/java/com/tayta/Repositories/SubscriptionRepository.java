@@ -13,6 +13,9 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     // Suscripciones del apoderado (ownership)
     List<Subscription> findByGuardian_User_Username(String username);
 
+    // Suscripciones por id de apoderado (regla: una activa por apoderado)
+    List<Subscription> findByGuardian_Id(Long guardianId);
+
     // Q8: Cantidad de suscripciones en estado activo
     @Query("SELECT COUNT(s) FROM Subscription s WHERE UPPER(s.status) = 'ACTIVE'")
     Long countActiveSubscriptions();

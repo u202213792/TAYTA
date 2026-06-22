@@ -6,8 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 
 public interface CalendarRepository extends JpaRepository<Calendar, Long> {
+
+    // Calendarios de un conjunto de adultos mayores (ownership del apoderado)
+    List<Calendar> findByElderly_IdIn(Collection<Long> elderlyIds);
 
     // Q5: Cantidad de citas en un rango de tiempo
     @Query("SELECT COUNT(c) FROM Calendar c WHERE c.appointmentDate BETWEEN :startDate AND :endDate")
