@@ -25,11 +25,15 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired private PaymentRepository paymentRepository;
     @Autowired private MonitoringRepository monitoringRepository;
     @Autowired private CalendarRepository calendarRepository;
+    @Autowired private GuardianElderlyRepository guardianElderlyRepository;
     @Autowired private PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
     public void run(String... args) {
+        // Vínculos apoderado↔adulto mayor (idempotente; corre aunque la BD ya esté sembrada)
+        seedGuardianElderlyLinks();
+
         if (roleRepository.count() > 0) return;
 
         // ── ROLES ──────────────────────────────────────────────────
@@ -112,6 +116,37 @@ public class DataInitializer implements CommandLineRunner {
         calendar("2025-01-20", "10:00", "2025-01-20", "08:30", "2025-01-25", "14:00", null);
         calendar("2025-02-14", "11:30", "2025-02-14", "09:00", "2025-02-20", "15:00", "Influenza");
         calendar("2025-04-05", "09:00", "2025-04-05", "08:00", "2025-04-10", "14:00", null);
+
+        // Tras crear datos en BD nueva, sembrar los vínculos
+        seedGuardianElderlyLinks();
+    }
+
+    /**
+     * Vincula apoderados con adultos mayores (ownership). Idempotente: solo
+     * corre si la tabla está vacía. El primer apoderado queda vinculado a todos
+     * los adultos mayores; los demás, al primero — así cada uno ve algo distinto.
+     */
+    private void seedGuardianElderlyLinks() {
+        if (guardianElderlyRepository.count() > 0) return;
+
+        java.util.List<Guardian> guardians = guardianRepository.findAll();
+        java.util.List<Elderly> elderlyList = elderlyRepository.findAll();
+        if (guardians.isEmpty() || elderlyList.isEmpty()) return;
+
+        Guardian first = guardians.get(0);
+        for (Elderly e : elderlyList) {
+            linkGuardianElderly(first, e);
+        }
+        for (int i = 1; i < guardians.size(); i++) {
+            linkGuardianElderly(guardians.get(i), elderlyList.get(0));
+        }
+    }
+
+    private void linkGuardianElderly(Guardian guardian, Elderly elderly) {
+        GuardianElderly link = new GuardianElderly();
+        link.setGuardian(guardian);
+        link.setElderly(elderly);
+        guardianElderlyRepository.save(link);
     }
 
     // ── Helpers ───────────────────────────────────────────────────
