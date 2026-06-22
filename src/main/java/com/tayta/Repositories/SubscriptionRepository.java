@@ -6,8 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
+
+    // Suscripciones del apoderado (ownership)
+    List<Subscription> findByGuardian_User_Username(String username);
 
     // Q8: Cantidad de suscripciones en estado activo
     @Query("SELECT COUNT(s) FROM Subscription s WHERE UPPER(s.status) = 'ACTIVE'")

@@ -6,8 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface MonitoringRepository extends JpaRepository<Monitoring, Long> {
+
+    // Monitoreos registrados por el enfermero/a (ownership)
+    List<Monitoring> findByNurse_User_Username(String username);
 
     // Q4: Cantidad de monitoreos en un rango de tiempo
     @Query("SELECT COUNT(m) FROM Monitoring m WHERE m.monitoringDate BETWEEN :startDate AND :endDate")

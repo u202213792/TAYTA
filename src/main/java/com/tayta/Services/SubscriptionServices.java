@@ -2,6 +2,7 @@ package com.tayta.Services;
 
 import com.tayta.Entities.Subscription;
 import com.tayta.Repositories.SubscriptionRepository;
+import com.tayta.Security.Services.CurrentUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +14,15 @@ public class SubscriptionServices {
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
+    @Autowired
+    private CurrentUserService currentUser;
+
     public List<Subscription> getAll() {
-        return subscriptionRepository.findAll();
+        // Ownership: el ADMIN ve todas; el apoderado solo las suyas.
+        if (currentUser.isAdmin()) {
+            return subscriptionRepository.findAll();
+        }
+        return subscriptionRepository.findByGuardian_User_Username(currentUser.username());
     }
 
     public Subscription getById(Long id) {
