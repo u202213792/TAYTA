@@ -62,7 +62,7 @@ public class SubscriptionServices {
         s.setGuardian(guardian);
         s.setPlanType(planType.toUpperCase());
         s.setStartDate(today);
-        s.setExpiryDate(today.plusYears(1));
+        s.setExpiryDate(today.plusMonths(1));
         s.setStatus("ACTIVE");
         s.setPrice(PlanLimits.priceFor(planType));
         s.setDiscount(BigDecimal.ZERO);
