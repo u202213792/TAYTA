@@ -1,7 +1,9 @@
 package com.tayta.Controllers;
 
+import com.tayta.Entities.Guardian;
 import com.tayta.Entities.Role;
 import com.tayta.Entities.User;
+import com.tayta.Repositories.GuardianRepository;
 import com.tayta.Repositories.RoleRepository;
 import com.tayta.Repositories.UserRepository;
 import com.tayta.Security.Dtos.LoginRequest;
@@ -31,6 +33,9 @@ public class AuthController {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private GuardianRepository guardianRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -74,6 +79,12 @@ public class AuthController {
         user.setCreatedAt(LocalDate.now());
 
         userRepository.save(user);
+
+        // Crear el perfil de apoderado asociado (necesario para suscripciones y adultos mayores)
+        Guardian guardian = new Guardian();
+        guardian.setUser(user);
+        guardianRepository.save(guardian);
+
         return ResponseEntity.ok("User registered successfully");
     }
 }

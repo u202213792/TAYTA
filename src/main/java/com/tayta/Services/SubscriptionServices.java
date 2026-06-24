@@ -3,9 +3,11 @@ package com.tayta.Services;
 import com.tayta.Entities.Guardian;
 import com.tayta.Entities.Payment;
 import com.tayta.Entities.Subscription;
+import com.tayta.Entities.User;
 import com.tayta.Repositories.GuardianRepository;
 import com.tayta.Repositories.PaymentRepository;
 import com.tayta.Repositories.SubscriptionRepository;
+import com.tayta.Repositories.UserRepository;
 import com.tayta.Security.Config.BusinessException;
 import com.tayta.Security.Services.CurrentUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ public class SubscriptionServices {
     private PaymentRepository paymentRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private CurrentUserService currentUser;
 
     /** Contratar un plan: crea la suscripción del apoderado actual y su primer pago. */
@@ -36,8 +41,15 @@ public class SubscriptionServices {
         if (!PlanLimits.isValidPlan(planType)) {
             throw new BusinessException("Plan no válido.");
         }
-        Guardian guardian = guardianRepository.findByUser_Username(currentUser.username())
-                .orElseThrow(() -> new BusinessException("Solo un apoderado puede contratar un plan."));
+        String username = currentUser.username();
+        // Buscar el perfil de apoderado; si no existe (usuario registrado antes), crearlo.
+        Guardian guardian = guardianRepository.findByUser_Username(username).orElseGet(() -> {
+            User u = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new BusinessException("Sesión no válida."));
+            Guardian g = new Guardian();
+            g.setUser(u);
+            return guardianRepository.save(g);
+        });
 
         boolean yaActiva = subscriptionRepository.findByGuardian_Id(guardian.getId()).stream()
                 .anyMatch(s -> "ACTIVE".equalsIgnoreCase(s.getStatus()));
