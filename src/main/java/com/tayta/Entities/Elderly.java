@@ -19,6 +19,9 @@ public class Elderly {
     @JoinColumn(name = "id_user")
     private User user;
 
+    @Column(name = "name")
+    private String name;
+
     @NotBlank(message = "El DNI es obligatorio")
     @Pattern(regexp = "\\d{8}", message = "El DNI debe tener 8 dígitos")
     @Column(name = "dni")
@@ -67,6 +70,14 @@ public class Elderly {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDni() {
