@@ -51,15 +51,19 @@ public class SubscriptionServices {
             return guardianRepository.save(g);
         });
 
-        boolean yaActiva = subscriptionRepository.findByGuardian_Id(guardian.getId()).stream()
-                .anyMatch(s -> "ACTIVE".equalsIgnoreCase(s.getStatus()));
-        if (yaActiva) {
-            throw new BusinessException("Ya tienes una suscripción activa.");
-        }
-
         LocalDate today = LocalDate.now();
-        Subscription s = new Subscription();
-        s.setGuardian(guardian);
+
+        // Si ya tiene una suscripción activa, se CAMBIA de plan (upgrade/downgrade);
+        // si no, se crea una nueva.
+        Subscription s = subscriptionRepository.findByGuardian_Id(guardian.getId()).stream()
+                .filter(sub -> "ACTIVE".equalsIgnoreCase(sub.getStatus()))
+                .findFirst()
+                .orElseGet(() -> {
+                    Subscription nueva = new Subscription();
+                    nueva.setGuardian(guardian);
+                    return nueva;
+                });
+
         s.setPlanType(planType.toUpperCase());
         s.setStartDate(today);
         s.setExpiryDate(today.plusMonths(1));
